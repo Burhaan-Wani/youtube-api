@@ -2,7 +2,7 @@ const env = require("../config/env.config");
 const User = require("../models/user.model");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
-const uploadToCloudinary = require("../utils/uploadToCloudinary");
+const { uploadToCloudinary } = require("../utils/uploadToCloudinary");
 const jwt = require("jsonwebtoken");
 
 const signup = catchAsync(async (req, res, next) => {

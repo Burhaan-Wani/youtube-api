@@ -1,0 +1,33 @@
+const express = require("express");
+const isAuthenticated = require("../middlewares/isAuthenticated");
+const {
+    uploadVideo,
+    updateVideo,
+    getAllVideos,
+    deleteVideo,
+    getVideoById,
+    getMyVideos,
+} = require("../controllers/video.controllers");
+const upload = require("../middlewares/multer");
+
+const router = express.Router();
+
+router.use(isAuthenticated);
+router.route("/my-videos").get(getMyVideos);
+router
+    .route("/")
+    .post(
+        upload.fields([
+            { name: "video", maxCount: 1 },
+            { name: "thumbnail", maxCount: 1 },
+        ]),
+        uploadVideo
+    )
+    .get(getAllVideos);
+router
+    .route("/:id")
+    .patch(upload.single("thumbnail"), updateVideo)
+    .delete(deleteVideo)
+    .get(getVideoById);
+
+module.exports = router;

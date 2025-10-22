@@ -36,6 +36,12 @@ const HandleDuplicateFieldErrors = (error) => {
     return new AppError(message, 400);
 };
 
+const handleCastError = () => {
+    return new AppError(
+        "Invalid ID format. Please provide a valid identifier",
+        400
+    );
+};
 const handleJWTExpiredError = () => {
     return new AppError("JWT token expired. Please login to continue", 401);
 };
@@ -55,6 +61,7 @@ const globalErrorHander = (error, req, res, next) => {
         if (error.name === "ValidationError")
             err = HandleValidationErrors(error);
         if (error.code === 11000) err = HandleDuplicateFieldErrors(error);
+        if (error.name === "CastError") err = handleCastError(error);
         if (error.name === "TokenExpiredError") err = handleJWTExpiredError();
         if (error.name === "JsonWebTokenError") err = handleJWTTokenError();
         prodError(err, res);

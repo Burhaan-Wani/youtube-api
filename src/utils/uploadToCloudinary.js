@@ -28,4 +28,12 @@ const uploadToCloudinary = async (file) => {
     }
 };
 
-module.exports = uploadToCloudinary;
+const deleteFromCloudninary = async (id) => {
+    try {
+        await cloudinary.uploader.destroy(id);
+    } catch (error) {
+        console.log("Failed to remove file from cloudinary");
+        throw new AppError("Failed to remove file from cloudinary", 500);
+    }
+};
+module.exports = { uploadToCloudinary, deleteFromCloudninary };
