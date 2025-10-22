@@ -6,6 +6,8 @@ const envVariables = () => {
         NODE_ENV: getEnv("NODE_ENV", "production"),
         DB_URI: getEnv("DB_URI"),
         DB_PASSWORD: getEnv("DB_PASSWORD"),
+        JWT_SECRET: getEnv("JWT_SECRET"),
+        JWT_EXPIRES_IN: getEnv("JWT_EXPIRES_IN"),
         CLOUDINARY_NAME: getEnv("CLOUDINARY_NAME"),
         CLOUDINARY_API_KEY: getEnv("CLOUDINARY_API_KEY"),
         CLOUDINARY_API_SECRET: getEnv("CLOUDINARY_API_SECRET"),

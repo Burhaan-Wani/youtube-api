@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema(
     {
@@ -16,13 +17,14 @@ const userSchema = new mongoose.Schema(
                 validator: (val) => {
                     return String(val).includes("@");
                 },
-                message: "Please enter a valid email.",
+                message: "Please enter a valid email",
             },
         },
         password: {
             type: String,
             required: [true, "Password is required"],
-            maxlength: [5, "Password must be atleast 5 characters long"],
+            minlength: [5, "Password must be atleast 5 characters long"],
+            select: false,
         },
         logoUrl: {
             type: String,
@@ -56,6 +58,16 @@ const userSchema = new mongoose.Schema(
         timestamps: true,
     }
 );
+
+userSchema.pre("save", async function (next) {
+    if (!this.isModified("password")) return next();
+    this.password = await bcrypt.hash(this.password, 12);
+    next();
+});
+
+userSchema.methods.comparePasswords = async function (password, hashPassword) {
+    return await bcrypt.compare(password, hashPassword);
+};
 
 const User = mongoose.model("User", userSchema);
 
