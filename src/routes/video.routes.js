@@ -1,5 +1,6 @@
 const express = require("express");
 const isAuthenticated = require("../middlewares/isAuthenticated");
+const commentRouter = require("./comment.routes");
 const {
     uploadVideo,
     updateVideo,
@@ -15,6 +16,8 @@ const {
 const upload = require("../middlewares/multer");
 
 const router = express.Router();
+
+router.use("/:videoId/comments", commentRouter);
 
 router.use(isAuthenticated);
 router.route("/my-videos").get(getMyVideos);

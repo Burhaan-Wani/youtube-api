@@ -4,6 +4,7 @@ const cookieParser = require("cookie-parser");
 const authRoutes = require("./routes/auth.routes");
 const videoRoutes = require("./routes/video.routes");
 const userRoutes = require("./routes/user.routes");
+const commentRoutes = require("./routes/comment.routes");
 const globalErrorHander = require("./middlewares/globalErrorHandlerMiddleware");
 
 const app = express();
@@ -16,6 +17,7 @@ app.use(cookieParser());
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/videos", videoRoutes);
 app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/comments", commentRoutes);
 
 // GLOBAL ERROR HANDLING MIDDLEWARE
 app.use(globalErrorHander);

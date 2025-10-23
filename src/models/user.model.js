@@ -64,7 +64,7 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.virtual("subscribersCount").get(function () {
-    return this.subscribers.length;
+    return this.subscribers?.length ?? 0;
 });
 userSchema.pre("save", async function (next) {
     if (!this.isModified("password")) return next();
