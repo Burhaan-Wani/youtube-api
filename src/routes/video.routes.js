@@ -7,6 +7,10 @@ const {
     deleteVideo,
     getVideoById,
     getMyVideos,
+    likeVideo,
+    disLikeVideo,
+    getVideosByCategory,
+    getVideosByTags,
 } = require("../controllers/video.controllers");
 const upload = require("../middlewares/multer");
 
@@ -24,6 +28,11 @@ router
         uploadVideo
     )
     .get(getAllVideos);
+router.get("/category/:category", getVideosByCategory);
+router.get("/tags/:tags", getVideosByTags);
+router.post("/:videoId/like", likeVideo);
+router.post("/:videoId/disLike", disLikeVideo);
+
 router
     .route("/:id")
     .patch(upload.single("thumbnail"), updateVideo)

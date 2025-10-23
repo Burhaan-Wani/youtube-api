@@ -108,8 +108,17 @@ const deleteVideo = catchAsync(async (req, res, next) => {
     });
 });
 
+// Increase views of video
 const getVideoById = catchAsync(async (req, res, next) => {
-    const video = await Video.findById(req.params.id);
+    const video = await Video.findByIdAndUpdate(
+        req.params.id,
+        {
+            $addToSet: { viewedBy: req.user._id },
+        },
+        {
+            new: true,
+        }
+    );
     res.status(200).json({
         status: "success",
         data: {
@@ -121,12 +130,109 @@ const getVideoById = catchAsync(async (req, res, next) => {
 const getMyVideos = catchAsync(async (req, res, next) => {
     const userId = req.user._id;
 
-    const myVideos = await Video.find({ userId });
+    const myVideos = await Video.find({ userId }).sort({ createdAt: -1 });
 
     res.status(200).json({
         status: "success",
         data: {
             videos: myVideos,
+        },
+    });
+});
+
+const likeVideo = catchAsync(async (req, res, next) => {
+    const { videoId } = req.params;
+    const userId = req.user._id;
+
+    const video = await Video.findById(videoId);
+
+    const likeIndex = video.likedBy.indexOf(userId);
+    const disLikeIndex = video.disLikedBy.indexOf(userId);
+
+    if (likeIndex !== -1) {
+        video.likedBy.splice(likeIndex, 1);
+    } else {
+        video.likedBy.push(userId);
+        if (disLikeIndex !== -1) {
+            video.disLikedBy.splice(disLikeIndex, 1);
+        }
+    }
+    await video.save();
+
+    res.status(200).json({});
+});
+
+const disLikeVideo = catchAsync(async (req, res, next) => {
+    const { videoId } = req.params;
+    const userId = req.user._id;
+
+    const video = await Video.findById(videoId);
+
+    const likeIndex = video.likedBy.indexOf(userId);
+    const disLikeIndex = video.disLikedBy.indexOf(userId);
+
+    // If already disLiked, remove disLike
+    if (disLikeIndex !== -1) {
+        video.disLikedBy.splice(likeIndex, 1);
+    } else {
+        video.disLikedBy.push(userId);
+        if (likeIndex !== -1) {
+            video.likedBy.splice(disLikeIndex, 1);
+        }
+    }
+    await video.save();
+
+    res.status(200).json({});
+});
+
+const getVideosByCategory = catchAsync(async (req, res, next) => {
+    const { category } = req.params;
+    const { page = 1, limit = 10 } = req.query;
+
+    const skip = (page - 1) * limit;
+
+    const videos = await Video.find({ category })
+        .skip(skip)
+        .limit(limit)
+        .exec();
+
+    const total = await Video.countDocuments({ category });
+
+    res.status(200).json({
+        success: true,
+        data: {
+            videos,
+        },
+        pagination: {
+            page,
+            limit,
+            total,
+        },
+    });
+});
+const getVideosByTags = catchAsync(async (req, res, next) => {
+    const { tags } = req.params;
+    const { page = 1, limit = 10 } = req.query;
+
+    const skip = (page - 1) * limit;
+
+    // Split tags by comma if multiple tags are provided
+    const tagArray = tags.split(",").map((tag) => tag.trim());
+
+    const videos = await Video.find({ tags: { $in: tagArray } })
+        .skip(skip)
+        .limit(limit)
+        .exec();
+
+    const total = await Video.countDocuments({ tags: { $in: tagArray } });
+
+    res.status(200).json({
+        success: true,
+        data: { videos },
+        pagination: {
+            page,
+            limit,
+            total,
         },
     });
 });
@@ -137,4 +243,8 @@ module.exports = {
     deleteVideo,
     getVideoById,
     getMyVideos,
+    likeVideo,
+    disLikeVideo,
+    getVideosByCategory,
+    getVideosByTags,
 };
