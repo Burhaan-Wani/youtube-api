@@ -43,22 +43,29 @@ const userSchema = new mongoose.Schema(
             required: [true, "Channel name is required"],
             unique: true,
         },
-        subscribers: {
-            type: Number,
-            default: 0,
-        },
+        subscribers: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User",
+            },
+        ],
         subscribedChannels: [
             {
                 type: mongoose.Schema.Types.ObjectId,
-                ref: "Channel",
+                ref: "User",
             },
         ],
     },
     {
         timestamps: true,
+        toJSON: { virtuals: true },
+        toObject: { virtuals: true },
     }
 );
 
+userSchema.virtual("subscribersCount").get(function () {
+    return this.subscribers.length;
+});
 userSchema.pre("save", async function (next) {
     if (!this.isModified("password")) return next();
     this.password = await bcrypt.hash(this.password, 12);
